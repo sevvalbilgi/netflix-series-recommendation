@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV Show Recommendations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body>
+    <div id="icon-container">
+        <img src="{{ url_for('static', filename='images/netflix.png') }}" alt="Netflix Icon" id="netflix-icon">
+    </div>
+    <header id="header">
+        <h1>Netflix Movie/TV Show Recommend Wizard</h1>
+    </header>
+    
+    <h1>TV Show Recommendations</h1>
+    <form id="recommendationForm">
+        <label for="title">Enter TV Show Title:</label>
+        <input type="text" id="title" name="title" required>
+        <button type="submit">Get Recommendations</button>
+    </form>
+    <h2>Recommendations:</h2>
+    <ul id="recommendationsList"></ul>
+
+    <script>
+        document.getElementById('recommendationForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const title = document.getElementById('title').value;
+            fetch(`/recommend?title=${title}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const list = document.getElementById('recommendationsList');
+                    list.innerHTML = '';
+                    if (data.error) {
+                        const li = document.createElement('li');
+                        li.textContent = data.error;
+                        list.appendChild(li);
+                    } else {
+                        data.forEach(item => {
+                            const li = document.createElement('li');
+                            li.textContent = item;
+                            list.appendChild(li);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const list = document.getElementById('recommendationsList');
+                    list.innerHTML = '';
+                    const li = document.createElement('li');
+                    li.textContent = 'An error occurred. Please try again.';
+                    list.appendChild(li);
+                });
+        });
+    </script>
+</body>
+
+</html>
